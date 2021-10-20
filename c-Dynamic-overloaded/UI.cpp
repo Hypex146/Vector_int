@@ -118,10 +118,10 @@ void UI::run() {
                 break;
             }
             case 15:
-                v1_.sortAscending();
+                v1_.sort(false);
                 break;
             case 16:
-                v2_.sortAscending();
+                v2_.sort(false);
                 break;
             case 17:
                 try {
@@ -145,4 +145,29 @@ void UI::run() {
                 break;
         }
     } while (choice);
+}
+
+int UI::getLimitedInt(int start, int end, const std::string &errMessage) {
+    int result;
+    do {
+        result = getValueLoop<int>("[ERROR] Try again!");
+        if (result < start || result > end) { std::cout << errMessage << std::endl; }
+    } while (result < start || result > end);
+    return result;
+}
+
+int UI::getLimitedInt(int border, bool isStartBorder, const std::string &errMessage) {
+    int result;
+    if (isStartBorder) {
+        do {
+            result = getValueLoop<int>("[ERROR] Try again!");
+            if (result < border) { std::cout << errMessage << std::endl; }
+        } while (result < border);
+    } else {
+        do {
+            result = getValueLoop<int>("[ERROR] Try again!");
+            if (result > border) { std::cout << errMessage << std::endl; }
+        } while (result > border);
+    }
+    return result;
 }

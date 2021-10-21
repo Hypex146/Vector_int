@@ -105,7 +105,7 @@ void Vector::inputVector() {
     std::cout << "Vector successfully entered!" << std::endl;
 }
 
-void Vector::outputVector() {
+void Vector::outputVector() const {
     if (!elements_) {
         std::cout << "{}" << std::endl;
         return;
@@ -138,7 +138,7 @@ std::ostream &HypexVector::operator<<(std::ostream &stream, const Vector &vector
     return stream;
 }
 
-bool Vector::equals(const Vector &vector) {
+bool Vector::equals(const Vector &vector) const {
     if (this == &vector) { return true; }
     if (size_ != vector.size_) { return false; }
     for (int i = 0; i < size_; i++) {
@@ -147,12 +147,16 @@ bool Vector::equals(const Vector &vector) {
     return true;
 }
 
+bool HypexVector::operator==(const Vector &v1, const Vector &v2) {
+    return v1.equals(v2);
+}
+
 void Vector::summarize(const Vector &summand) {
     int cycle_pass = summand.size_;
     int new_size = size_;
     if (summand.size_ > size_) {
         new_size = summand.size_;
-        cycle_pass = size_;
+        //cycle_pass = size_;
     }
     extend(new_size);
     for (int i = 0; i < cycle_pass; i++) {
@@ -165,7 +169,7 @@ void Vector::subtract(const Vector &deductible) {
     int new_size = size_;
     if (deductible.size_ > size_) {
         new_size = deductible.size_;
-        cycle_pass = size_;
+        //cycle_pass = size_;
     }
     extend(new_size);
     for (int i = 0; i < cycle_pass; i++) {
@@ -186,7 +190,7 @@ void Vector::divide(int divider) {
     }
 }
 
-Vector Vector::cut(int start, int size) {
+Vector Vector::cut(int start, int size) const {
     if (start + size > size_ || size < 0 || start < 0) { throw std::invalid_argument("[ERROR] Invalid parameters!"); }
     Vector new_vector;
     new_vector.size_ = size;
@@ -224,11 +228,11 @@ void Vector::qSort(int start, int end, int *mas, bool reverse) {
 }
 
 void Vector::sort(bool reverse) {
-    if (size_ == 0) { throw std::length_error("[ERROR] Vector is empty!"); }
+    if (size_ == 0) { return; }
     qSort(0, size_ - 1, elements_, reverse);
 }
 
-int Vector::getMax() {
+int Vector::getMax() const {
     if (size_ == 0) { throw std::length_error("[ERROR] Vector is empty!"); }
     int max = elements_[0];
     for (int i = 0; i < size_; i++) {
@@ -237,7 +241,7 @@ int Vector::getMax() {
     return max;
 }
 
-int Vector::getMin() {
+int Vector::getMin() const {
     if (size_ == 0) { throw std::length_error("[ERROR] Vector is empty!"); }
     int min = elements_[0];
     for (int i = 0; i < size_; i++) {
@@ -263,7 +267,7 @@ Vector &HypexVector::Vector::operator+=(const Vector &v1) {
     return *this;
 }
 
-Vector operator-(const Vector &v1, const Vector &v2) {
+Vector HypexVector::operator-(const Vector &v1, const Vector &v2) {
     Vector result(v1);
     result.subtract(v2);
     return result;
@@ -274,7 +278,7 @@ Vector &Vector::operator-=(const Vector &v1) {
     return *this;
 }
 
-Vector operator*(const Vector &v1, int multiplier ) {
+Vector HypexVector::operator*(const Vector &v1, int multiplier) {
     Vector result(v1);
     result.multiply(multiplier);
     return result;
@@ -285,7 +289,7 @@ Vector &Vector::operator*=(int multiplier) {
     return *this;
 }
 
-Vector operator/(const Vector &v1, int divider) {
+Vector HypexVector::operator/(const Vector &v1, int divider) {
     Vector result(v1);
     result.divide(divider);
     return result;

@@ -1,17 +1,29 @@
-//
-// Created by vlad_ on 14.10.2021.
-//
-
 #include "Vector.h"
 
-using namespace HypexLib;
+using namespace HypexVector;
 
-int HypexLib::getLimitedInt(int start, int end, const std::string &errMessage) {
+int Vector::getLimitedInt(int start, int end, const std::string &errMessage) {
     int result;
     do {
         result = getValueLoop<int>("[ERROR] Try again!");
         if (result < start || result > end) { std::cout << errMessage << std::endl; }
     } while (result < start || result > end);
+    return result;
+}
+
+int Vector::getLimitedInt(int border, bool isStartBorder, const std::string &errMessage) {
+    int result;
+    if (isStartBorder) {
+        do {
+            result = getValueLoop<int>("[ERROR] Try again!");
+            if (result < border) { std::cout << errMessage << std::endl; }
+        } while (result < border);
+    } else {
+        do {
+            result = getValueLoop<int>("[ERROR] Try again!");
+            if (result > border) { std::cout << errMessage << std::endl; }
+        } while (result > border);
+    }
     return result;
 }
 
@@ -49,7 +61,7 @@ void Vector::inputVector() {
     std::cout << "Vector successfully entered!" << std::endl;
 }
 
-void Vector::outputVector() {
+void Vector::outputVector() const {
     std::cout << "{";
     for (int i = 0; i < size_; i++) {
         if (i != size_ - 1) {
@@ -72,7 +84,7 @@ void Vector::sum(const Vector &summand) {
     }
 }
 
-Vector Vector::cut(int start, int size) {
+Vector Vector::cut(int start, int size) const {
     if (start + size > size_ || size < 0 || start < 0) { throw std::invalid_argument("[ERROR] Invalid parameters!"); }
     Vector new_vector;
     new_vector.size_ = size;
@@ -108,10 +120,11 @@ void Vector::qSort(int start, int end, int *mas) {
 }
 
 void Vector::sortAscending() {
+    if (size_ == 0) { return; }
     qSort(0, size_ - 1, elements_);
 }
 
-int Vector::getMax() {
+int Vector::getMax() const {
     if (size_ == 0) { throw std::invalid_argument("[ERROR] Vector is empty!"); }
     int max = elements_[0];
     for (int i = 0; i < size_; i++) {
@@ -127,13 +140,26 @@ void Vector::clear() {
     size_ = 0;
 }
 
-Vector HypexLib::operator+(const Vector &v1, const Vector &v2) {
+Vector HypexVector::operator+(const Vector &v1, const Vector &v2) {
     Vector result(v1);
     result.sum(v2);
     return result;
 }
 
-Vector &HypexLib::Vector::operator+=(const Vector &v1) {
+Vector &Vector::operator+=(const Vector &v1) {
     this->sum(v1);
     return *this;
+}
+
+std::ostream &HypexVector::operator<<(std::ostream &stream, const Vector &vector) {
+    stream << "{";
+    for (int i = 0; i < vector.size_; i++) {
+        if (i != vector.size_ - 1) {
+            stream << vector.elements_[i] << ", ";
+        } else {
+            stream << vector.elements_[i];
+        }
+    }
+    stream << "}" << std::endl;
+    return stream;
 }

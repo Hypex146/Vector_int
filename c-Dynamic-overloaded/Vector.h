@@ -17,7 +17,7 @@
  * Пространство имён, созданное для класса "Vector".
  */
 namespace HypexVector {
-    //TODO сделать модульные тесты.
+
     /**
      * @brief
      * Вектор целых чисел.
@@ -134,6 +134,13 @@ namespace HypexVector {
          *     return 0;
          * }
          * @endcode
+         * @warning
+         * Для создания пустого вектора использовать соответствующий конструктор. Не делать так:
+         * @code
+         * int main() {
+         *     Vector v({}); // Не делать так! Ибо получится вектор с элементом 0, а не пустой: {0}
+         * }
+         * @endcode
          * @tparam N - определяется компилятором, не трагать!
          * @param elements - указатель на массив.
          */
@@ -224,7 +231,7 @@ namespace HypexVector {
          * Выводит вектор в стандартный поток вывода.\n\n
          * Формат вывода: {1, 2, 3, ...} или {}, если вектор с размерностью 0.
          */
-        void outputVector();
+        void outputVector() const;
 
         /**
          * @brief
@@ -253,7 +260,29 @@ namespace HypexVector {
          * @param vector - ссылка на экземпляр класса "Vector".
          * @return true - вектора равны, false если нет.
          */
-        bool equals(const Vector &vector);
+        [[nodiscard]] bool equals(const Vector &vector) const;
+
+        /**
+         * @brief
+         * Оператор "==".
+         * @details
+         * Используется для сравнения векторов.\n\n
+         * Пример:
+         * @code
+         * int main() {
+         *     Vector v1({1, 2, 3});
+         *     Vector v2({1, 2, 3});
+         *     if (v1 == v2) {
+         *         //do something;
+         *     }
+         *     return 0;
+         * }
+         * @endcode
+         * @param v1 - ссылка на экземпляр класса "Vector".
+         * @param v2 - ссылка на экземпляр класса "Vector".
+         * @return true - вектора равны, false если нет.
+         */
+        friend bool operator==(const Vector &v1, const Vector &v2);
 
         /**
          * @brief
@@ -312,7 +341,7 @@ namespace HypexVector {
          * @endcode
          * @param v1 - ссылка на экземпляр класса "Vector".
          * @param v2 - ссылка на экземпляр класса "Vector".
-         * @return - результат, являющийся экземпляром класса "Vector".
+         * @return результат, являющийся экземпляром класса "Vector".
          */
         friend Vector operator+(const Vector &v1, const Vector &v2);
 
@@ -330,9 +359,10 @@ namespace HypexVector {
          *     v3 = v1 - v2;
          *     return 0;
          * }
+         * @endcode
          * @param v1 - ссылка на экземпляр класса "Vector".
          * @param v2 - ссылка на экземпляр класса "Vector".
-         * @return - результат, являющийся экземпляром класса "Vector".
+         * @return результат, являющийся экземпляром класса "Vector".
          */
         friend Vector operator-(const Vector &v1, const Vector &v2);
 
@@ -349,6 +379,7 @@ namespace HypexVector {
          *     v2 = v1 * 7;
          *     return 0;
          * }
+         * @endcode
          * @param v1 - ссылка на экземпляр класса "Vector".
          * @param multiplier - множитель.
          * @return результат, являющийся экземпляром класса "Vector".
@@ -370,7 +401,7 @@ namespace HypexVector {
          * }
          * @endcode
          * @warning
-         * Использовать данный метод аккуратно, ибо вектор хранит в себе значения типа int!
+         * Использовать данный оператор аккуратно, ибо вектор хранит в себе значения типа int!
          * @param v1 - ссылка на экземпляр класса "Vector".
          * @param divider - делитель.
          * @return результат, являющийся экземпляром класса "Vector".
@@ -393,7 +424,7 @@ namespace HypexVector {
          * }
          * @endcode
          * @param v1 - ссылка на экземпляр класса "Vector".
-         * @return - ссылка на экземпляр класса "Vector", к которому прибавляли другой вектор.
+         * @return ссылка на экземпляр класса "Vector", к которому прибавляли другой вектор.
          */
         Vector &operator+=(const Vector &v1);
 
@@ -412,7 +443,7 @@ namespace HypexVector {
          * }
          * @endcode
          * @param v1 - ссылка на экземпляр класса "Vector".
-         * @return - ссылка на экземпляр класса "Vector", из которого вычли другой вектор.
+         * @return ссылка на экземпляр класса "Vector", из которого вычли другой вектор.
          */
         Vector &operator-=(const Vector &v1);
 
@@ -430,7 +461,7 @@ namespace HypexVector {
          * }
          * @endcode
          * @param multiplier - множитель.
-         * @return - ссылка на экземпляр класса "Vector", который был умножен на константу.
+         * @return ссылка на экземпляр класса "Vector", который был умножен на константу.
          */
         Vector &operator*=(int multiplier);
 
@@ -448,9 +479,9 @@ namespace HypexVector {
          * }
          * @endcode
          * @warning
-         * Использовать данный метод аккуратно, ибо вектор хранит в себе значения типа int!
+         * Использовать данный оператор аккуратно, ибо вектор хранит в себе значения типа int!
          * @param divider - делитель.
-         * @return - ссылка на экземпляр класса "Vector", который был поделён на константу.
+         * @return ссылка на экземпляр класса "Vector", который был поделён на константу.
          * @throw std::invalid_argument при попытке поделить на 0.
          */
         Vector &operator/=(int divider);
@@ -462,10 +493,10 @@ namespace HypexVector {
          * Выделение части вектора указанной длины, начиная с элемента, заданного его порядковым номером в векторе.
          * @param start - порядковый номер первого элемента для выделения.
          * @param size - длина выделения.
-         * @return - результат выделение части вектора, являющийся экземпляром класса "Vector".
+         * @return результат выделение части вектора, являющийся экземпляром класса "Vector".
          * @throw std::invalid_argument возникает, если start + size > размеров исходного вектора.
          */
-        Vector cut(int start, int size);
+        [[nodiscard]] Vector cut(int start, int size) const;
 
         /**
          * @brief
@@ -478,9 +509,8 @@ namespace HypexVector {
          * @brief
          * Упорядочение вектора.
          * @param reverse - изменить порядок с возрастающего на убывающий?
-         * @throw std::length_error возникает, если вектор имеет размерность равную 0.
          */
-        void sort(bool reverse);
+        void sort(bool reverse = false);
 
         /**
          * @brief
@@ -488,7 +518,7 @@ namespace HypexVector {
          * @return максимальный элемент в векторе.
          * @throw std::length_error возникает, если вектор имеет размерность равную 0.
          */
-        int getMax();
+        [[nodiscard]] int getMax() const;
 
         /**
          * @brief
@@ -496,7 +526,7 @@ namespace HypexVector {
          * @return минимальный элемент в векторе.
          * @throw std::length_error возникает, если вектор имеет размерность равную 0.
          */
-        int getMin();
+        [[nodiscard]] int getMin() const;
 
         /**
          * @brief
@@ -506,6 +536,8 @@ namespace HypexVector {
          */
         void clear();
     };
+
+    bool operator==(const Vector &v1, const Vector &v2);
 
     Vector operator+(const Vector &v1, const Vector &v2);
 

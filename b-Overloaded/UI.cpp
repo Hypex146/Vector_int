@@ -1,7 +1,3 @@
-//
-// Created by vlad_ on 14.10.2021.
-//
-
 #include "UI.h"
 
 void UI::printMenu() {
@@ -46,10 +42,10 @@ void UI::run() {
                 v2_.inputVector();
                 break;
             case 3:
-                v1_.outputVector();
+                std::cout << v1_;
                 break;
             case 4:
-                v2_.outputVector();
+                std::cout << v2_;
                 break;
             case 5:
                 std::cout << v1_.getSize() << std::endl;
@@ -145,4 +141,29 @@ void UI::run() {
                 break;
         }
     } while (choice);
+}
+
+int UI::getLimitedInt(int start, int end, const std::string &errMessage) {
+    int result;
+    do {
+        result = getValueLoop<int>("[ERROR] Try again!");
+        if (result < start || result > end) { std::cout << errMessage << std::endl; }
+    } while (result < start || result > end);
+    return result;
+}
+
+int UI::getLimitedInt(int border, bool isStartBorder, const std::string &errMessage) {
+    int result;
+    if (isStartBorder) {
+        do {
+            result = getValueLoop<int>("[ERROR] Try again!");
+            if (result < border) { std::cout << errMessage << std::endl; }
+        } while (result < border);
+    } else {
+        do {
+            result = getValueLoop<int>("[ERROR] Try again!");
+            if (result > border) { std::cout << errMessage << std::endl; }
+        } while (result > border);
+    }
+    return result;
 }

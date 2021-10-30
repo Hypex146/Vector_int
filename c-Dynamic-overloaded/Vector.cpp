@@ -2,7 +2,7 @@
 
 using namespace HypexVector;
 
-int Vector::getLimitedInt(int start, int end,
+static int HypexVector::getLimitedInt(int start, int end,
                           const char *err_message, std::istream &istream, std::ostream &ostream) {
     int result;
     do {
@@ -12,7 +12,7 @@ int Vector::getLimitedInt(int start, int end,
     return result;
 }
 
-int Vector::getLimitedInt(int border, bool isStartBorder,
+static int HypexVector::getLimitedInt(int border, bool isStartBorder,
                           const char *err_message, std::istream &istream, std::ostream &ostream) {
     int result;
     if (isStartBorder) {

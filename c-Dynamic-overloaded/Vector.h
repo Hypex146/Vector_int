@@ -44,26 +44,8 @@ namespace HypexVector {
         // При уменьшении размерности элементы отбрасываются с конца.
         void extend(int new_size);
 
-        // Возвращает массив целочисленных элементов, являющихся элементами вектора.
+        // Возвращает массив целочисленных элементов, являющихся элементами вектора (копия).
         [[nodiscard]] int *copyElements() const;
-
-        // Ввод. Если ввод не коректен (введён не тот тип данных), метод вернёт -1.
-        // Если ввод коректен, метод вернёт 0.
-        template<typename T>
-        friend int getValue(T &value, std::istream &istream);
-
-        // То же самое, что и getValue, только зациклен до тех пор, пока не будет введёт коректный тип данных.
-        template<typename T>
-        friend T getValueLoop(const char *err_message, std::istream &istream, std::ostream &ostream);
-        //TODO убрать друзей!
-
-        // Ввод ограниченного с двух сторон целого числа.
-        static int getLimitedInt(int start, int end, const char *err_message,
-                                 std::istream &istream, std::ostream &ostream);
-
-        // Ввод ограниченного с одной стороны целого числа.
-        static int getLimitedInt(int border, bool isStartBorder, const char *err_message,
-                                 std::istream &istream, std::ostream &ostream);
 
     public:
 
@@ -642,8 +624,10 @@ namespace HypexVector {
 
     std::istream &operator>>(std::istream &stream, Vector &vector);
 
+    // Ввод. Если ввод не коректен (введён не тот тип данных), метод вернёт -1.
+    // Если ввод коректен, метод вернёт 0.
     template<typename T>
-    int getValue(T &value, std::istream &istream) {
+    static int getValue(T &value, std::istream &istream) {
         istream >> value;
         if (istream.fail()) {
             if (istream.eof()) { throw std::runtime_error("Bad input"); }
@@ -654,14 +638,23 @@ namespace HypexVector {
         return 0;
     }
 
+    // То же самое, что и getValue, только зациклен до тех пор, пока не будет введёт коректный тип данных.
     template<typename T>
-    T getValueLoop(const char *err_message, std::istream &istream, std::ostream &ostream) {
+    static T getValueLoop(const char *err_message, std::istream &istream, std::ostream &ostream) {
         T value;
         while (getValue<int>(value, istream) != 0) {
             ostream << err_message << std::endl;
         }
         return value;
     }
+
+    // Ввод ограниченного с двух сторон целого числа.
+    static int getLimitedInt(int start, int end, const char *err_message,
+                             std::istream &istream, std::ostream &ostream);
+
+    // Ввод ограниченного с одной стороны целого числа.
+    static int getLimitedInt(int border, bool isStartBorder, const char *err_message,
+                             std::istream &istream, std::ostream &ostream);
 }
 
 #endif //LAB_3_DYNAMICS_VECTOR_H

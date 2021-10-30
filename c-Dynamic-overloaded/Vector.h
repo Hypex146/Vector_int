@@ -50,31 +50,20 @@ namespace HypexVector {
         // Ввод. Если ввод не коректен (введён не тот тип данных), метод вернёт -1.
         // Если ввод коректен, метод вернёт 0.
         template<typename T>
-        static int getValue(T &value) {
-            std::cin >> value;
-            if (!std::cin.good()) {
-                std::cin.clear();
-                std::cin.ignore();
-                return -1;
-            }
-            return 0;
-        }
+        friend int getValue(T &value, std::istream &istream);
 
         // То же самое, что и getValue, только зациклен до тех пор, пока не будет введёт коректный тип данных.
         template<typename T>
-        static T getValueLoop(const std::string &err_message) {
-            T value;
-            while (getValue<int>(value) != 0) {
-                std::cout << err_message << std::endl;
-            }
-            return value;
-        }
+        friend T getValueLoop(const char *err_message, std::istream &istream, std::ostream &ostream);
+        //TODO убрать друзей!
 
         // Ввод ограниченного с двух сторон целого числа.
-        static int getLimitedInt(int start, int end, const std::string &errMessage);
+        static int getLimitedInt(int start, int end, const char *err_message,
+                                 std::istream &istream, std::ostream &ostream);
 
         // Ввод ограниченного с одной стороны целого числа.
-        static int getLimitedInt(int border, bool isStartBorder, const std::string &errMessage);
+        static int getLimitedInt(int border, bool isStartBorder, const char *err_message,
+                                 std::istream &istream, std::ostream &ostream);
 
     public:
 
@@ -118,6 +107,16 @@ namespace HypexVector {
          * @param object - ссылка на копируемый экземпляр класса "Vector".
          */
         Vector(const Vector &object);
+
+        /**
+         * @brief
+         * Конструктор перемещения.
+         * @details
+         * Данный конструктор создаёт экземпляр класса на основе другого экземпляра (r-value) путём перемещения.
+         * Будет создан вектор идентичный передаваемому вектору.
+         * @param object - ссылка на r-value (экземпляр класса "Vector").
+         */
+        Vector(Vector &&object) noexcept;
 
         /**
          * @brief
@@ -174,6 +173,28 @@ namespace HypexVector {
 
         /**
          * @brief
+         * Оператор перемещения "=".
+         * @details
+         * Данный оператор изменяет экземпляр класса "Vector", используя семантику перемещения.\n\n
+         * Пример:
+         * @code
+         * int createVector() {
+         *     return Vector({1, 2, 3});
+         * }
+         *
+         * int main() {
+         *     Vector v1();
+         *     v1 = createVector();
+         *     return 0;
+         * }
+         * @endcode
+         * @param object - ссылка на r-value (экземпляр класса "Vector").
+         * @return Ссылка на экземпляр класса, в который производилось перемещение.
+         */
+        Vector &operator=(Vector &&object) noexcept;
+
+        /**
+         * @brief
          * Оператор "="
          * @details
          * Данный оператор изменяет экземпляр класса "Vector" в соответствии с массивом значений типа int.
@@ -222,7 +243,7 @@ namespace HypexVector {
          * Заполняет вектор информацией, вводимой из стандартного входного потока.
          * Если метод будет вызван уже заполненным вектором, то имеющаяся информация будет удалена (перезаписана).
          */
-        void inputVector();
+        void inputVector(std::istream &istream, std::ostream &ostream);
 
         /**
          * @brief
@@ -231,7 +252,7 @@ namespace HypexVector {
          * Выводит вектор в стандартный поток вывода.\n\n
          * Формат вывода: {1, 2, 3, ...} или {}, если вектор с размерностью 0.
          */
-        void outputVector() const;
+        void outputVector(std::ostream &ostream) const;
 
         /**
          * @brief
@@ -251,6 +272,31 @@ namespace HypexVector {
          * @return ссылка на поток вывода.
          */
         friend std::ostream &operator<<(std::ostream &stream, const Vector &vector);
+
+        /**
+         * @brief
+         * Оператор ">>".
+         * @details
+         * Используется для считывания вектора из потока ввода.\n\n
+         * Пример:
+         * @code
+         * int main() {
+         *     Vector v;
+         *     std::cin >> v;
+         *     return 0;
+         * }
+         * @endcode
+         * @warning Шаблон ввода данных:
+         * <размерность вектора> <элементы вектора>\n
+         * Пример:\n
+         * \>\> 5 1 2 3 4 5\n
+         * Будет введён вектор: {1, 2, 3, 4, 5}.
+         * @param stream - ссылка на поток ввода.
+         * @param vector - ссылка на экземпляр класса "Vector".
+         * @return ссылка на поток ввода.
+         * @throw std::runtime_error при некорректном вводе данных.
+         */
+        friend std::istream &operator>>(std::istream &stream, Vector &vector);
 
         /**
          * @brief
@@ -283,6 +329,28 @@ namespace HypexVector {
          * @return true - вектора равны, false если нет.
          */
         friend bool operator==(const Vector &v1, const Vector &v2);
+
+        /**
+         * @brief
+         * Оператор "!=".
+         * @details
+         * Используется для сравнения векторов.\n\n
+         * Пример:
+         * @code
+         * int main() {
+         *     Vector v1({1, 2, 3});
+         *     Vector v2({1, 2, 3});
+         *     if (v1 != v2) {
+         *         //do something;
+         *     }
+         *     return 0;
+         * }
+         * @endcode
+         * @param v1 - ссылка на экземпляр класса "Vector".
+         * @param v2 - ссылка на экземпляр класса "Vector".
+         * @return false - вектора равны, true если нет.
+         */
+        friend bool operator!=(const Vector &v1, const Vector &v2);
 
         /**
          * @brief
@@ -390,7 +458,8 @@ namespace HypexVector {
          * @brief
          * Оператор "/".
          * @details
-         * Выполняет деление вектора на константу.\n\n
+         * Выполняет деление вектора на константу.
+         * Целочисленное деление!\n\n
          * Пример:
          * @code
          * int main() {
@@ -469,7 +538,8 @@ namespace HypexVector {
          * @brief
          * Оператор "/=".
          * @details
-         * Делим вектор, находящегося слева от оператора, на константу, находящуюся справа от оператора.\n\n
+         * Делим вектор, находящегося слева от оператора, на константу, находящуюся справа от оператора.
+         * Целочисленное деление!\n\n
          * Пример:
          * @code
          * int main() {
@@ -496,7 +566,7 @@ namespace HypexVector {
          * @return результат выделение части вектора, являющийся экземпляром класса "Vector".
          * @throw std::invalid_argument возникает, если start + size > размеров исходного вектора.
          */
-        [[nodiscard]] Vector cut(int start, int size) const;
+        [[nodiscard]] Vector copyN(int start, int size) const;
 
         /**
          * @brief
@@ -530,6 +600,25 @@ namespace HypexVector {
 
         /**
          * @brief
+         * Получение элемента.
+         * @details
+         * Получение элемента из вектора по его индексу.\n\n
+         * Пример:
+         * @code
+         * int main() {
+         *     Vector v({1, 2, 3});
+         *     int element = v[1];
+         *     return 0;
+         * }
+         * @endcode
+         * @param index - индекс элемента.
+         * @return Элемент вектора.
+         * @throw std::invalid_argument возникает, если некорректно указан индекс элемента.
+         */
+        int operator[](int index);
+
+        /**
+         * @brief
          * Очистка вектора.
          * @details
          * Очистка вектора путём удаления всех элементов и установки размерности равной 0.
@@ -538,6 +627,8 @@ namespace HypexVector {
     };
 
     bool operator==(const Vector &v1, const Vector &v2);
+
+    bool operator!=(const Vector &v1, const Vector &v2);
 
     Vector operator+(const Vector &v1, const Vector &v2);
 
@@ -548,6 +639,29 @@ namespace HypexVector {
     Vector operator/(const Vector &v1, int divider);
 
     std::ostream &operator<<(std::ostream &stream, const Vector &vector);
+
+    std::istream &operator>>(std::istream &stream, Vector &vector);
+
+    template<typename T>
+    int getValue(T &value, std::istream &istream) {
+        istream >> value;
+        if (istream.fail()) {
+            if (istream.eof()) { throw std::runtime_error("Bad input"); }
+            istream.clear();
+            istream.ignore();
+            return -1;
+        }
+        return 0;
+    }
+
+    template<typename T>
+    T getValueLoop(const char *err_message, std::istream &istream, std::ostream &ostream) {
+        T value;
+        while (getValue<int>(value, istream) != 0) {
+            ostream << err_message << std::endl;
+        }
+        return value;
+    }
 }
 
 #endif //LAB_3_DYNAMICS_VECTOR_H

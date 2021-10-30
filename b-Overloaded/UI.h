@@ -17,7 +17,8 @@ private:
     template<typename T>
     static int getValue(T &value) {
         std::cin >> value;
-        if (!std::cin.good()) {
+        if (std::cin.fail()) {
+            if (std::cin.eof()) { exit(0); }
             std::cin.clear();
             std::cin.ignore();
             return -1;

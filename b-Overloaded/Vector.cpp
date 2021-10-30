@@ -2,26 +2,28 @@
 
 using namespace HypexVector;
 
-int Vector::getLimitedInt(int start, int end, const std::string &errMessage) {
+int Vector::getLimitedInt(int start, int end,
+                          const std::string &errMessage, std::istream &istream, std::ostream &ostream) {
     int result;
     do {
-        result = getValueLoop<int>("[ERROR] Try again!");
-        if (result < start || result > end) { std::cout << errMessage << std::endl; }
+        result = getValueLoop<int>("[ERROR] Try again!", istream, ostream);
+        if (result < start || result > end) { ostream << errMessage << std::endl; }
     } while (result < start || result > end);
     return result;
 }
 
-int Vector::getLimitedInt(int border, bool isStartBorder, const std::string &errMessage) {
+int Vector::getLimitedInt(int border, bool isStartBorder,
+                          const std::string &errMessage, std::istream &istream, std::ostream &ostream) {
     int result;
     if (isStartBorder) {
         do {
-            result = getValueLoop<int>("[ERROR] Try again!");
-            if (result < border) { std::cout << errMessage << std::endl; }
+            result = getValueLoop<int>("[ERROR] Try again!", istream, ostream);
+            if (result < border) { ostream << errMessage << std::endl; }
         } while (result < border);
     } else {
         do {
-            result = getValueLoop<int>("[ERROR] Try again!");
-            if (result > border) { std::cout << errMessage << std::endl; }
+            result = getValueLoop<int>("[ERROR] Try again!", istream, ostream);
+            if (result > border) { ostream << errMessage << std::endl; }
         } while (result > border);
     }
     return result;
@@ -48,29 +50,31 @@ int Vector::getSize() const {
     return size_;
 }
 
-void Vector::inputVector() {
+void Vector::inputVector(std::istream &istream, std::ostream &ostream) {
     clear();
-    std::cout << "Enter the size of the vector (int):" << std::endl;
-    int size = getLimitedInt(0, max_size_, "[ERROR] Bad value of size! Try again");
+    ostream << "Enter the size of the vector (int):" << std::endl;
+    int size = getLimitedInt(0, max_size_,
+                             "[ERROR] Bad value of size! Try again", istream, ostream);
     size_ = size;
-    std::cout << "Enter the vector elements (int):" << std::endl;
+    ostream << "Enter the vector elements (int):" << std::endl;
     for (int i = 0; i < size; i++) {
-        int element = getValueLoop<int>("[ERROR] Bad value of element! Try again");
+        int element = getValueLoop<int>("[ERROR] Bad value of element! Try again",
+                                        istream, ostream);
         elements_[i] = element;
     }
-    std::cout << "Vector successfully entered!" << std::endl;
+    ostream << "Vector successfully entered!" << std::endl;
 }
 
-void Vector::outputVector() const {
-    std::cout << "{";
+void Vector::outputVector(std::ostream &ostream) const {
+    ostream << "{";
     for (int i = 0; i < size_; i++) {
         if (i != size_ - 1) {
-            std::cout << elements_[i] << ", ";
+            ostream << elements_[i] << ", ";
         } else {
-            std::cout << elements_[i];
+            ostream << elements_[i];
         }
     }
-    std::cout << "}" << std::endl;
+    ostream << "}" << std::endl;
 }
 
 void Vector::sum(const Vector &summand) {
@@ -84,7 +88,7 @@ void Vector::sum(const Vector &summand) {
     }
 }
 
-Vector Vector::cut(int start, int size) const {
+Vector Vector::copyN(int start, int size) const {
     if (start + size > size_ || size < 0 || start < 0) { throw std::invalid_argument("[ERROR] Invalid parameters!"); }
     Vector new_vector;
     new_vector.size_ = size;
@@ -162,4 +166,30 @@ std::ostream &HypexVector::operator<<(std::ostream &stream, const Vector &vector
     }
     stream << "}" << std::endl;
     return stream;
+}
+
+std::istream &HypexVector::operator>>(std::istream &stream, Vector &vector) {
+    vector.clear();
+    int new_size;
+    int new_element;
+    stream >> new_size;
+    if (!stream.good()) { throw std::runtime_error("Bad input"); }
+    for (int i = 0; i < new_size; i++) {
+        stream >> new_element;
+        if (!stream.good()) { throw std::runtime_error("Bad input"); }
+        vector.add(new_element);
+    }
+    return stream;
+}
+
+Vector &Vector::operator-() {
+    for (int i = 0; i < size_; i++) {
+        elements_[i] = -elements_[i];
+    }
+    return *this;
+}
+
+int Vector::operator[](int index) {
+    if (index >= size_ || index < 0) { throw std::invalid_argument("[ERROR] Out of range!"); }
+    return elements_[index];
 }

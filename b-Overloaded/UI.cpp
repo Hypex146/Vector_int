@@ -22,6 +22,9 @@ void UI::printMenu() {
     std::cout << "18) Get max v2" << std::endl;
     std::cout << "19) Clear v1" << std::endl;
     std::cout << "20) Clear v2" << std::endl;
+    std::cout << "21) Print element form v1 by index ([])" << std::endl;
+    std::cout << "22) Print element form v2 by index ([])" << std::endl;
+    std::cout << "23) Print menu" << std::endl;
 }
 
 UI::UI() {
@@ -30,16 +33,16 @@ UI::UI() {
 }
 
 void UI::run() {
+    printMenu();
     int choice = 0;
     do {
-        printMenu();
-        choice = getLimitedInt(0, 20, "[ERROR] Bad choice!");
+        choice = getLimitedInt(0, 23, "[ERROR] Bad choice!");
         switch (choice) {
             case 1:
-                v1_.inputVector();
+                v1_.inputVector(std::cin, std::cout);
                 break;
             case 2:
-                v2_.inputVector();
+                v2_.inputVector(std::cin, std::cout);
                 break;
             case 3:
                 std::cout << v1_;
@@ -72,11 +75,11 @@ void UI::run() {
                 std::cout << "Enter the size" << std::endl;
                 int size = getValueLoop<int>("[ERROR] Bad value of size!");
                 try {
-                    new_v = v1_.cut(start, size);
+                    new_v = v1_.copyN(start, size);
                 } catch (std::exception &ex) {
-                    std::cout << ex.what() << std::endl;
+                    std::cerr << ex.what() << std::endl;
                 }
-                new_v.outputVector();
+                new_v.outputVector(std::cout);
                 break;
             }
             case 12: {
@@ -86,11 +89,11 @@ void UI::run() {
                 std::cout << "Enter the size" << std::endl;
                 int size = getValueLoop<int>("[ERROR] Bad value of size!");
                 try {
-                    new_v = v2_.cut(start, size);
+                    new_v = v2_.copyN(start, size);
                 } catch (std::exception &ex) {
-                    std::cout << ex.what() << std::endl;
+                    std::cerr << ex.what() << std::endl;
                 }
-                new_v.outputVector();
+                new_v.outputVector(std::cout);
                 break;
             }
             case 13: {
@@ -99,7 +102,7 @@ void UI::run() {
                 try {
                     v1_.add(new_value);
                 } catch (std::exception &ex) {
-                    std::cout << ex.what() << std::endl;
+                    std::cerr << ex.what() << std::endl;
                 }
                 break;
             }
@@ -109,7 +112,7 @@ void UI::run() {
                 try {
                     v2_.add(new_value);
                 } catch (std::exception &ex) {
-                    std::cout << ex.what() << std::endl;
+                    std::cerr << ex.what() << std::endl;
                 }
                 break;
             }
@@ -123,14 +126,14 @@ void UI::run() {
                 try {
                     std::cout << v1_.getMax() << std::endl;
                 } catch (std::exception &ex) {
-                    std::cout << ex.what() << std::endl;
+                    std::cerr << ex.what() << std::endl;
                 }
                 break;
             case 18:
                 try {
                     std::cout << v2_.getMax() << std::endl;
                 } catch (std::exception &ex) {
-                    std::cout << ex.what() << std::endl;
+                    std::cerr << ex.what() << std::endl;
                 }
                 break;
             case 19:
@@ -138,6 +141,29 @@ void UI::run() {
                 break;
             case 20:
                 v2_.clear();
+                break;
+            case 21: {
+                std::cout << "Enter the index of element" << std::endl;
+                int index = getValueLoop<int>("[ERROR] Bad index!");
+                try {
+                    std::cout << v1_[index] << std::endl;
+                } catch (std::exception &ex) {
+                    std::cerr << ex.what() << std::endl;
+                }
+                break;
+            }
+            case 22: {
+                std::cout << "Enter the index of element" << std::endl;
+                int index = getValueLoop<int>("[ERROR] Bad index!");
+                try {
+                    std::cout << v2_[index] << std::endl;
+                } catch (std::exception &ex) {
+                    std::cerr << ex.what() << std::endl;
+                }
+                break;
+            }
+            case 23:
+                printMenu();
                 break;
         }
     } while (choice);

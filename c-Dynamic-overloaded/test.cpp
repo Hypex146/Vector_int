@@ -3,6 +3,11 @@
 
 using namespace HypexVector;
 
+Vector getRValue() {
+    Vector v({1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    return v;
+}
+
 TEST(Constructors, ZeroParams_0) {
     Vector v;
     EXPECT_EQ(v.getSize(), 0);
@@ -50,6 +55,12 @@ TEST(Constructors, ArrayIntParam_1) {
     EXPECT_EQ(v.getSize(), 1);
 }
 
+TEST(Constructors, Move_0) {
+    Vector v1 = getRValue();
+    Vector v2({1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    EXPECT_EQ(v1 == v2, true);
+}
+
 TEST(Operators, AssignmentCopy_0) {
     Vector v1({1, 2, 3, 4});
     Vector v2;
@@ -64,6 +75,20 @@ TEST(Operators, AssignmentCopy_1) {
     v2 = v1;
     EXPECT_EQ(v1.getSize(), v2.getSize());
     EXPECT_EQ(v1.equals(v2), true);
+}
+
+TEST(Operators, AssignmentMove_0) {
+    Vector v1({5, 3, 8, 6});
+    v1 = getRValue();
+    Vector v2({1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    EXPECT_EQ(v1 == v2, true);
+}
+
+TEST(Operators, AssignmentMove_1) {
+    Vector v1;
+    v1 = getRValue();
+    Vector v2({1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
+    EXPECT_EQ(v1 == v2, true);
 }
 
 TEST(Operators, AssignmentArray_0) {
@@ -514,45 +539,66 @@ TEST(Operators, SelfDivide_3) {
     EXPECT_THROW(v1 /= 0, std::invalid_argument);
 }
 
+TEST(Operators, GetElement_0) {
+    Vector v({5, 3, -8, 9});
+    EXPECT_EQ(v[1], 3);
+}
+
+TEST(Operators, GetElement_1) {
+    Vector v(-2);
+    EXPECT_EQ(v[0], -2);
+}
+
+TEST(Operators, GetElement_2) {
+    Vector v({4, -6, -1, 5, 7, 6});
+    EXPECT_THROW(v[6], std::invalid_argument);
+    EXPECT_THROW(v[-1], std::invalid_argument);
+}
+
+TEST(Operators, GetElement_3) {
+    Vector v;
+    EXPECT_THROW(v[0], std::invalid_argument);
+}
+
 TEST(Methods, Cut_0) {
     Vector v1({1, 2, 3, 4, 5});
-    Vector v2 = v1.cut(0, 5);
+    Vector v2 = v1.copyN(0, 5);
     Vector v3({1, 2, 3, 4, 5});
     EXPECT_EQ(v2.equals(v3), true);
 }
 
 TEST(Methods, Cut_1) {
     Vector v1({1, 2, 3, 4, 5});
-    Vector v2 = v1.cut(2, 2);
+    Vector v2 = v1.copyN(2, 2);
     Vector v3({3, 4});
     EXPECT_EQ(v2.equals(v3), true);
 }
 
 TEST(Methods, Cut_2) {
     Vector v1;
-    Vector v2 = v1.cut(0, 0);
+    Vector v2 = v1.copyN(0, 0);
     Vector v3;
     EXPECT_EQ(v2.equals(v3), true);
 }
 
 TEST(Methods, Cut_3) {
     Vector v1;
-    EXPECT_THROW(Vector v2 = v1.cut(0, 5), std::invalid_argument);
+    EXPECT_THROW(Vector v2 = v1.copyN(0, 5), std::invalid_argument);
 }
 
 TEST(Methods, Cut_4) {
     Vector v1({1, 2, 3});
-    EXPECT_THROW(Vector v2 = v1.cut(3, 1), std::invalid_argument);
+    EXPECT_THROW(Vector v2 = v1.copyN(3, 1), std::invalid_argument);
 }
 
 TEST(Methods, Cut_5) {
     Vector v1({1, 2, 3});
-    EXPECT_THROW(Vector v2 = v1.cut(0, 4), std::invalid_argument);
+    EXPECT_THROW(Vector v2 = v1.copyN(0, 4), std::invalid_argument);
 }
 
 TEST(Methods, Cut_6) {
     Vector v1({1, 2, 3, 4, 5});
-    Vector v2 = v1.cut(3, 0);
+    Vector v2 = v1.copyN(3, 0);
     Vector v3;
     EXPECT_EQ(v2.equals(v3), true);
 }

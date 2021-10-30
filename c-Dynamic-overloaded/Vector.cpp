@@ -1,31 +1,29 @@
-//
-// Created by vlad_ on 14.10.2021.
-//
-
 #include "Vector.h"
 
 using namespace HypexVector;
 
-int Vector::getLimitedInt(int start, int end, const std::string &errMessage) {
+int Vector::getLimitedInt(int start, int end,
+                          const char *err_message, std::istream &istream, std::ostream &ostream) {
     int result;
     do {
-        result = getValueLoop<int>("[ERROR] Try again!");
-        if (result < start || result > end) { std::cout << errMessage << std::endl; }
+        result = getValueLoop<int>("[ERROR] Try again!", istream, ostream);
+        if (result < start || result > end) { ostream << err_message << std::endl; }
     } while (result < start || result > end);
     return result;
 }
 
-int Vector::getLimitedInt(int border, bool isStartBorder, const std::string &errMessage) {
+int Vector::getLimitedInt(int border, bool isStartBorder,
+                          const char *err_message, std::istream &istream, std::ostream &ostream) {
     int result;
     if (isStartBorder) {
         do {
-            result = getValueLoop<int>("[ERROR] Try again!");
-            if (result < border) { std::cout << errMessage << std::endl; }
+            result = getValueLoop<int>("[ERROR] Try again!", istream, ostream);
+            if (result < border) { ostream << err_message << std::endl; }
         } while (result < border);
     } else {
         do {
-            result = getValueLoop<int>("[ERROR] Try again!");
-            if (result > border) { std::cout << errMessage << std::endl; }
+            result = getValueLoop<int>("[ERROR] Try again!", istream, ostream);
+            if (result > border) { ostream << err_message << std::endl; }
         } while (result > border);
     }
     return result;
@@ -71,7 +69,7 @@ Vector::~Vector() {
 }
 
 void Vector::extend(int new_size) {
-    int loop_pass = 0;
+    int loop_pass;
     if (new_size == size_) { return; }
     else if (new_size > size_) { loop_pass = size_; }
     else { loop_pass = new_size; }
@@ -91,31 +89,31 @@ int Vector::getSize() const {
     return size_;
 }
 
-void Vector::inputVector() {
+void Vector::inputVector(std::istream &istream, std::ostream &ostream) {
     clear();
-    std::cout << "Enter the size of the vector (int):" << std::endl;
-    int size = getLimitedInt(0, true, "[ERROR] Bad value of size! Try again");
+    ostream << "Enter the size of the vector (int):" << std::endl;
+    int size = getLimitedInt(0, true, "[ERROR] Bad value of size! Try again", istream, ostream);
     size_ = size;
     elements_ = new int[size_];
-    std::cout << "Enter the vector elements (int):" << std::endl;
+    ostream << "Enter the vector elements (int):" << std::endl;
     for (int i = 0; i < size; i++) {
-        int element = getValueLoop<int>("[ERROR] Bad value of element! Try again");
+        int element = getValueLoop<int>("[ERROR] Bad value of element! Try again", istream, ostream);
         elements_[i] = element;
     }
-    std::cout << "Vector successfully entered!" << std::endl;
+    ostream << "Vector successfully entered!" << std::endl;
 }
 
-void Vector::outputVector() const {
+void Vector::outputVector(std::ostream &ostream) const {
     if (!elements_) {
-        std::cout << "{}" << std::endl;
+        ostream << "{}" << std::endl;
         return;
     }
-    std::cout << "{";
+    ostream << "{";
     for (int i = 0; i < size_; i++) {
         if (i != size_ - 1) {
-            std::cout << elements_[i] << ", ";
+            ostream << elements_[i] << ", ";
         } else {
-            std::cout << elements_[i];
+            ostream << elements_[i];
         }
     }
     std::cout << "}" << std::endl;
@@ -138,6 +136,20 @@ std::ostream &HypexVector::operator<<(std::ostream &stream, const Vector &vector
     return stream;
 }
 
+std::istream &HypexVector::operator>>(std::istream &stream, Vector &vector) {
+    vector.clear();
+    int new_size;
+    int new_element;
+    stream >> new_size;
+    if (!stream.good()) { throw std::runtime_error("Bad input"); }
+    for (int i = 0; i < new_size; i++) {
+        stream >> new_element;
+        if (!stream.good()) { throw std::runtime_error("Bad input"); }
+        vector.add(new_element);
+    }
+    return stream;
+}
+
 bool Vector::equals(const Vector &vector) const {
     if (this == &vector) { return true; }
     if (size_ != vector.size_) { return false; }
@@ -149,6 +161,10 @@ bool Vector::equals(const Vector &vector) const {
 
 bool HypexVector::operator==(const Vector &v1, const Vector &v2) {
     return v1.equals(v2);
+}
+
+bool HypexVector::operator!=(const Vector &v1, const Vector &v2) {
+    return !(v1.equals(v2));
 }
 
 void Vector::summarize(const Vector &summand) {
@@ -190,7 +206,7 @@ void Vector::divide(int divider) {
     }
 }
 
-Vector Vector::cut(int start, int size) const {
+Vector Vector::copyN(int start, int size) const {
     if (start + size > size_ || size < 0 || start < 0) { throw std::invalid_argument("[ERROR] Invalid parameters!"); }
     Vector new_vector;
     new_vector.size_ = size;
@@ -297,5 +313,25 @@ Vector HypexVector::operator/(const Vector &v1, int divider) {
 
 Vector &Vector::operator/=(int divider) {
     this->divide(divider);
+    return *this;
+}
+
+int Vector::operator[](int index) {
+    if (index >= size_ || index < 0) { throw std::invalid_argument("[ERROR] Out of range!"); }
+    return elements_[index];
+}
+
+Vector::Vector(Vector &&object) noexcept {
+    this->size_ = object.size_;
+    this->elements_ = object.elements_;
+    object.elements_ = nullptr;
+}
+
+Vector &Vector::operator=(Vector &&object) noexcept {
+    if (this == &object) { return *this; }
+    delete [] elements_;
+    this->size_ = object.size_;
+    this->elements_ = object.elements_;
+    object.elements_ = nullptr;
     return *this;
 }
